@@ -1,4 +1,3 @@
 <Solution>
-  <Project Path="AdvancedChat.Desktop/AdvancedChat.Desktop.csproj" />
   <Project Path="AdvancedChat.Web/AdvancedChat.Web.csproj" />
 </Solution>

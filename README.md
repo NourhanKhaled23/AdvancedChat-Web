@@ -1,129 +1,191 @@
 # Advanced Chat
 
-A real-time chat platform with a web frontend and a WPF desktop client, built on ASP.NET Core 8 and SignalR. Users can create chat rooms, invite members, send public and private messages, and collaborate in real time.
+A real-time messaging platform built with ASP.NET Core 8 and SignalR. Users create chat rooms, invite members by email, and exchange messages instantly through a clean, responsive web interface.
+
+## Features
+
+- **Identity-based auth** — Register and sign in via ASP.NET Core Identity with cookie authentication
+- **Chat rooms** — Create, browse, and delete rooms; each room tracks ownership and membership
+- **Member management** — Invite users by email; membership is required to view or send messages in a room
+- **Real-time messaging** — Messages delivered instantly over WebSockets via SignalR, with automatic reconnection
+- **Private messages** — Direct messaging between any two registered users
+- **Dashboard** — Unified console showing room list, online status, a live message feed, and quick-send controls
+- **Responsive UI** — Built with Bootstrap 5, Bootstrap Icons, and custom CSS; adapts to desktop and mobile
+- **REST API** — JSON endpoints for auth and room operations, consumable by external clients
+
+## Tech stack
+
+| Layer             | Technology                                    |
+|-------------------|-----------------------------------------------|
+| Runtime           | .NET 8                                        |
+| Web framework     | ASP.NET Core MVC + SignalR                    |
+| Database          | SQLite via Entity Framework Core 8            |
+| Authentication    | ASP.NET Core Identity (cookie-based)          |
+| Frontend          | Bootstrap 5, Bootstrap Icons, Inter font      |
+| Client-side       | jQuery, jQuery Validation, SignalR JS client  |
 
 ## Architecture
 
 ```
-AdvancedChat.sln
-├── AdvancedChat.Web          — ASP.NET Core 8 MVC app with SignalR
-│   ├── Controllers/          — MVC + API controllers
-│   ├── Hubs/                 — SignalR hub (real-time messaging)
-│   ├── Services/             — Business logic layer
-│   ├── Models/               — Domain models and view models
-│   ├── Data/                 — EF Core DbContext + migrations
-│   ├── Areas/Identity/       — ASP.NET Core Identity UI
-│   └── Views/                — Razor views (landing, dashboard, rooms)
-└── AdvancedChat.Desktop      — WPF desktop client (.NET 8 Windows)
-    └── MainWindow.xaml       — XAML UI with SignalR connectivity
+AdvancedChat.Web
+├── Controllers/
+│   ├── ApiAuthController.cs      — JSON auth endpoints
+│   ├── ApiRoomsController.cs     — JSON room management API
+│   ├── HomeController.cs         — Landing page, privacy, errors
+│   └── RoomsController.cs        — MVC room CRUD + member management
+├── Hubs/
+│   └── ChatHub.cs                — SignalR hub for real-time messaging
+├── Services/
+│   └── ChatRoomService.cs        — Business logic for rooms, members, messages
+├── Models/
+│   ├── ChatRoom.cs               — Room entity
+│   ├── ChatMessage.cs            — Message entity
+│   ├── ChatRoomMember.cs         — Membership join entity
+│   ├── RoomViewModels.cs         — View models for all room-related views
+│   └── ErrorViewModel.cs         — Error page model
+├── Data/
+│   ├── ApplicationDbContext.cs   — EF Core context with Fluent API config
+│   └── Migrations/               — Schema migrations (Identity + chat tables)
+├── Areas/Identity/               — ASP.NET Core Identity scaffolded UI
+│   └── Pages/Account/
+│       ├── Login.cshtml          — Sign-in page
+│       └── Register.cshtml       — Registration page
+├── Views/
+│   ├── Home/
+│   │   ├── Index.cshtml          — Landing page (hero, features, CTA)
+│   │   └── Privacy.cshtml        — Privacy policy
+│   ├── Rooms/
+│   │   ├── Index.cshtml          — Dashboard (rooms, broadcast, DMs, feed)
+│   │   ├── Create.cshtml         — Room creation form
+│   │   └── Details.cshtml        — Room detail view with live chat
+│   └── Shared/
+│       ├── _Layout.cshtml        — App shell with nav bar and footer
+│       ├── _LoginPartial.cshtml  — Auth status in navbar
+│       └── Error.cshtml          — Generic error page
+└── wwwroot/
+    ├── css/site.css              — Full custom stylesheet (900+ lines)
+    ├── js/site.js                — Placeholder for app-level scripts
+    └── lib/                      — Vendor libraries (Bootstrap, jQuery, etc.)
 ```
-
-## Features
-
-- **User authentication** — Register and sign in via ASP.NET Core Identity
-- **Chat rooms** — Create, delete, and manage rooms with role-based access
-- **Member management** — Invite users by email to join rooms
-- **Real-time messaging** — Instant message delivery via SignalR WebSockets
-- **Private messages** — Direct messaging between users
-- **Desktop client** — WPF application with full chat functionality
-- **Dashboard** — Unified console for room management and messaging
-
-## Tech stack
-
-| Layer          | Technology                                    |
-|----------------|-----------------------------------------------|
-| Runtime        | .NET 8                                        |
-| Web framework  | ASP.NET Core MVC + SignalR                    |
-| Desktop client | WPF (.NET 8, Windows)                         |
-| Database       | SQLite via Entity Framework Core 8            |
-| Authentication | ASP.NET Core Identity                         |
-| Frontend       | Bootstrap 5, Bootstrap Icons, Inter font      |
-| Client-side    | jQuery, jQuery Validation, SignalR JS client  |
 
 ## Getting started
 
 ### Prerequisites
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- (Desktop client only) Windows 10/11
 
-### Run the web app
+### Run locally
 
 ```bash
 cd AdvancedChat.Web
 dotnet run --launch-profile http
 ```
 
-The app starts at `http://localhost:5017`. Open the URL in a browser, register an account, and start chatting.
-
-### Run the desktop client
-
-The desktop client connects to the same backend. Update the server URL in the UI (default: `http://localhost:5017`).
-
-```bash
-cd AdvancedChat.Desktop
-dotnet run
-```
+Open `http://localhost:5017` in a browser. Register an account, then create or join a room to start chatting.
 
 ### Database
 
-The app uses SQLite with EF Core migrations. The database is created automatically on first run. To rebuild from scratch:
+The app uses SQLite with EF Core migrations. The database and tables are created automatically on first run. To reset:
 
 ```bash
 cd AdvancedChat.Web
-dotnet ef database drop
+dotnet ef database drop --force
 dotnet ef database update
 ```
 
-## Project structure
+### Configuration
 
-### Web app (`AdvancedChat.Web/`)
+All settings are in `appsettings.json`:
 
-- **`Program.cs`** — Application entry point, DI registration, middleware pipeline
-- **`Controllers/ApiAuthController.cs`** — JSON auth endpoints (register, login, logout)
-- **`Controllers/ApiRoomsController.cs`** — JSON room management API
-- **`Controllers/RoomsController.cs`** — MVC controller for room CRUD and member management
-- **`Controllers/HomeController.cs`** — Landing page and error handling
-- **`Hubs/ChatHub.cs`** — SignalR hub: room join/leave, public/private messaging
-- **`Services/ChatRoomService.cs`** — Room and message business logic
-- **`Models/`** — Domain entities (`ChatRoom`, `ChatMessage`, `ChatRoomMember`) and view models
-- **`Data/ApplicationDbContext.cs`** — EF Core context with Fluent API configuration
-- **`Areas/Identity/`** — Scaffolded Identity pages (login, register)
-- **`Views/`** — Razor views with custom CSS styling
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "DataSource=app.db;Cache=Shared"
+  }
+}
+```
 
-### Desktop client (`AdvancedChat.Desktop/`)
+Override via environment variables, user secrets, or the `appsettings.Development.json` file.
 
-- **`MainWindow.xaml`** — XAML layout with connection panel, room list, and chat area
-- **`MainWindow.xaml.cs`** — SignalR connection management, room loading, message handling
+## API reference
 
-## API endpoints
+All API endpoints return JSON. Auth endpoints set a cookie on success; subsequent requests use cookie authentication.
 
-### Auth (`/api/auth`)
+### Auth
 
-| Method | Path            | Description        |
-|--------|-----------------|--------------------|
-| POST   | `/api/auth/register` | Create a new user |
-| POST   | `/api/auth/login`    | Sign in           |
-| POST   | `/api/auth/logout`   | Sign out (auth)   |
+```
+POST /api/auth/register    { "email", "password" }        → 200 { "email" }
+POST /api/auth/login       { "email", "password" }        → 200 { "email" }
+POST /api/auth/logout      [Auth]                         → 200
+```
 
-### Rooms (`/api/rooms`)
+### Rooms
 
-| Method | Path                    | Description         |
-|--------|-------------------------|---------------------|
-| GET    | `/api/rooms`            | List user's rooms   |
-| POST   | `/api/rooms`            | Create a room       |
-| POST   | `/api/rooms/{id}/users` | Add user to room    |
+```
+GET   /api/rooms           [Auth]                         → 200 [ { id, name, description, memberCount } ]
+POST  /api/rooms           [Auth] { "name", "description"? } → 200 { id, name, description }
+POST  /api/rooms/{id}/users [Auth] { "email" }            → 200 | 400 { "message" }
+```
 
-## SignalR hub (`/chatHub`)
+## SignalR hub
 
-| Method              | Description                       |
-|---------------------|-----------------------------------|
-| `JoinRoom`          | Subscribe to room messages        |
-| `SendMessage`       | Send a message to a room          |
-| `SendPrivateMessage`| Send a direct message to a user   |
-| `GetRecentMessages` | Retrieve the last 50 messages     |
+The real-time hub is available at `/chatHub` and requires authentication.
 
-Clients receive events: `ReceiveMessage`, `ReceivePrivateMessage`, `SystemMessage`.
+| Method              | Parameters                | Description                      |
+|---------------------|---------------------------|----------------------------------|
+| `JoinRoom`          | `roomId`                  | Subscribe to a room's messages   |
+| `SendMessage`       | `roomId`, `message`       | Send a message to a room         |
+| `SendPrivateMessage`| `targetUserId`, `message` | Send a direct message to a user  |
+| `GetRecentMessages` | `roomId`                  | Retrieve last 50 messages        |
+
+### Client events
+
+| Event                     | Payload                                    |
+|---------------------------|--------------------------------------------|
+| `ReceiveMessage`          | `{ roomId, userName, text, sentAt }`      |
+| `ReceivePrivateMessage`   | `{ fromUserId, toUserId, userName, text, sentAt }` |
+| `SystemMessage`           | `{ message }`                             |
+
+The JS client is configured with automatic reconnect. The connection state is displayed in the UI as a badge (Connected / Reconnecting / Offline).
+
+## Security
+
+- All hub methods require an authenticated user (`[Authorize]` on the hub class)
+- Room membership is enforced server-side before any read or write operation
+- Message length is capped at 2000 characters on the server
+- Input is validated on both client and server
+- ASP.NET Core Data Protection keys are persisted to `App_Data/Keys/` (excluded from version control)
+- HSTS is enabled in production
+
+## Development
+
+### Prerequisites for development
+
+```bash
+dotnet --version    # 8.0.x required
+```
+
+### Build and run
+
+```bash
+dotnet build
+dotnet run --project AdvancedChat.Web
+```
+
+### Add a migration
+
+```bash
+dotnet ef migrations add MigrationName --project AdvancedChat.Web
+dotnet ef database update --project AdvancedChat.Web
+```
+
+### Project conventions
+
+- File-scoped namespaces throughout
+- Primary constructor usage where applicable
+- View models in `Models/`, business logic in `Services/`
+- Async all the way — no `.Result` or `.Wait()` calls
+- JSON serialization uses `JsonSerializerDefaults.Web` (camelCase, case-insensitive)
 
 ## Contributing
 
@@ -135,4 +197,4 @@ Clients receive events: `ReceiveMessage`, `ReceivePrivateMessage`, `SystemMessag
 
 ## License
 
-This project is licensed under the MIT License.
+MIT
