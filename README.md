@@ -1,7 +1,7 @@
-# NexusChat Web Application
+# HubRooms Web Application
 
 ## Overview
-NexusChat is a highly responsive, real-time web communication platform built with ASP.NET Core 8 MVC and SignalR. It features seamless public broadcasting, private direct messaging, and Swagger API integration for ultimate developer flexibility.
+HubRooms is a comprehensive real-time chat platform built on ASP.NET Core 8 MVC and SignalR. Create dynamic chat rooms, send private direct messages, and explore the Swagger-powered REST API.
 
 ## Features
 - **Real-time Messaging:** Powered by SignalR with automatic reconnect capabilities.
