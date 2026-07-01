@@ -1,7 +1,7 @@
-# AdvancedChat Web Application
+# NexusChat Web Application
 
 ## Overview
-AdvancedChat is a real-time web-based communication platform built with ASP.NET Core MVC and SignalR. It enables users to create chat rooms, broadcast messages to public channels, and send direct private messages to individual users.
+NexusChat is a highly responsive, real-time web communication platform built with ASP.NET Core 8 MVC and SignalR. It features seamless public broadcasting, private direct messaging, and Swagger API integration for ultimate developer flexibility.
 
 ## Features
 - **Real-time Messaging:** Powered by SignalR with automatic reconnect capabilities.
